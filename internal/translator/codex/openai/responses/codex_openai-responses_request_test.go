@@ -307,6 +307,8 @@ func TestConvertOpenAIResponsesRequestToCodex_PreservesWebSearchSourcesInclude(t
 		{name: "object include", includeJSON: `{"web_search_call.action.sources":true}`, want: reasoningOnly},
 		{name: "non-string entries", includeJSON: `[42,true]`, want: reasoningOnly},
 		{name: "empty array", includeJSON: `[]`, want: reasoningOnly},
+		{name: "image results", includeJSON: `["web_search_call.results"]`, want: []string{"reasoning.encrypted_content", "web_search_call.results"}},
+		{name: "images and sources", includeJSON: `["web_search_call.results","web_search_call.action.sources","web_search_call.results",42]`, want: []string{"reasoning.encrypted_content", "web_search_call.action.sources", "web_search_call.results"}},
 		{name: "sources alone", includeJSON: `["web_search_call.action.sources"]`, want: reasoningAndSources},
 		{name: "reasoning then sources", includeJSON: `["reasoning.encrypted_content","web_search_call.action.sources"]`, want: reasoningAndSources},
 		{name: "sources before reasoning", includeJSON: `["web_search_call.action.sources","reasoning.encrypted_content"]`, want: reasoningAndSources},
@@ -359,6 +361,8 @@ func TestConvertOpenAIResponsesRequestToCodex_WebSearchToolDoesNotOptIntoSources
 
 func TestConvertOpenAIResponsesRequestToCodexReusesNormalizedPayloadWithSources(t *testing.T) {
 	for _, includeJSON := range []string{
+		`["reasoning.encrypted_content","web_search_call.results"]`,
+		`["reasoning.encrypted_content","web_search_call.action.sources","web_search_call.results"]`,
 		`["reasoning.encrypted_content","web_search_call.action.sources"]`,
 		`[ "reasoning.encrypted_content" , "web_search_call.action.sources" ]`,
 		`[ "reasoning.encrypted_content" ]`,
